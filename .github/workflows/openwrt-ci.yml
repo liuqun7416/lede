@@ -36,6 +36,7 @@ jobs:
       - name: Space cleanup
         env:
           DEBIAN_FRONTEND: noninteractive
+          
         run: |
           docker rmi `docker images -q`
           sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
@@ -52,10 +53,12 @@ jobs:
           # ln -s /mnt/openwrt/feeds ./feeds
           # ln -s /mnt/openwrt/staging_dir ./staging_dir
           df -h
+          
       - name: Update feeds
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          
       - name: Generate configuration file
         run: |
           rm -f ./.config*
@@ -65,7 +68,6 @@ jobs:
           # ========================固件定制部分========================
           # 
           # 
-          
           # 如果不对本区块做出任何编辑, 则生成默认配置固件. 
           # 
           # 以下为定制化固件选项和说明:
@@ -84,18 +86,17 @@ jobs:
           # 以下是一些提前准备好的一些插件选项.
           # 直接取消注释相应代码块即可应用. 不要取消注释代码块上的汉字说明.
           # 如果不需要代码块里的某一项配置, 只需要删除相应行.
-          #
           # 如果需要其他插件, 请按照示例自行添加.
           # 注意, 只需添加依赖链顶端的包. 如果你需要插件 A, 同时 A 依赖 B, 即只需要添加 A.
-          # 
           # 无论你想要对固件进行怎样的定制, 都需要且只需要修改 EOF 回环内的内容.
+          #
           
           # 编译x64固件:
-          # cat >> .config <<EOF
-          # CONFIG_TARGET_x86=y
-          # CONFIG_TARGET_x86_64=y
-          # CONFIG_TARGET_x86_64_Generic=y
-          # EOF
+          cat >> .config <<EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          EOF
           
           # 固件压缩:
           # cat >> .config <<EOF
@@ -103,9 +104,9 @@ jobs:
           # EOF
           
           # 编译UEFI固件:
-          # cat >> .config <<EOF
-          # CONFIG_EFI_IMAGES=y
-          # EOF
+          cat >> .config <<EOF
+          CONFIG_EFI_IMAGES=y
+          EOF
           
           # IPv6支持:
           # cat >> .config <<EOF
@@ -158,21 +159,21 @@ jobs:
           EOF
           
           # LuCI主题:
-          # cat >> .config <<EOF
-          # CONFIG_PACKAGE_luci-theme-argon=y
-          # CONFIG_PACKAGE_luci-theme-netgear=y
-          # EOF
+          cat >> .config <<EOF
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-theme-netgear=y
+          EOF
           
           # 常用软件包:
-          # cat >> .config <<EOF
-          # CONFIG_PACKAGE_curl=y
-          # CONFIG_PACKAGE_htop=y
-          # CONFIG_PACKAGE_nano=y
-          # CONFIG_PACKAGE_screen=y
-          # CONFIG_PACKAGE_tree=y
-          # CONFIG_PACKAGE_vim-fuller=y
-          # CONFIG_PACKAGE_wget=y
-          # EOF
+          cat >> .config <<EOF
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_htop=y
+          CONFIG_PACKAGE_nano=y
+          CONFIG_PACKAGE_screen=y
+          CONFIG_PACKAGE_tree=y
+          CONFIG_PACKAGE_vim-fuller=y
+          CONFIG_PACKAGE_wget=y
+          EOF
           
           # 取消编译VMware镜像以及镜像填充 (不要删除被缩进的注释符号):
           # cat >> .config <<EOF
@@ -190,6 +191,7 @@ jobs:
           make download -j8 || make download -j1 V=s
           find ./dl/ -size -1024c -exec rm -f {} \;
           df -h
+          
       - name: Compile firmware
         run: |
           make -j$(nproc) || make -j1 V=s
